@@ -147,11 +147,11 @@ All endpoints handle Canvas's pagination via `Link` response headers.
 
 ## Reflection
 
-This project was a solid intro to consuming a real-world REST API. The authentication part was straightforward — just slapping a `Bearer` token in the `Authorization` header — but I didn't expect Canvas to paginate almost every list endpoint by default. Following the `Link: <url>; rel="next"` header is simple once you know it's there, but it's not obvious from a quick skim of the docs. The `rich` library made it easy to get clean table output with color without a lot of boilerplate.
+The biggest thing that I learned from this project was how REST API authentication actually works in practice. Reading about bearer tokens is one thing but writing code that puts them in request headers and handles a 401 when they're wrong is another thing. I also didn't realize how much real-world APIs lean on pagination, Canvas limits almost every list endpoint to 100 items by default.
 
-The trickiest part was handling inconsistent data. Some course objects come back from the API without a `name` key (usually concluded courses that slip past the `enrollment_state=active` filter), and some assignments have `null` for `due_at`, `points_possible`, or the `submission` object. Defensive coding with `.get()` and `or {}` guards fixed most of it, but it took a few test runs against live data to catch all the edge cases.
+I used Claude pretty heavily on this one, the HTTP request loop, pagination logic, and the rich table formatting. That part was really useful as it let me skip tedious stuff and focus on the tools functionality and structure the commands. I did have to test it against live Canvas data and fix a few things like courses coming back without a name field and assignments with null due dates crashing the sort.
 
-If I had more time I'd add two things. First, a `canvas submit --course-id X --assignment-id Y --file path/to/file.pdf` command — the POST to `/submissions` endpoint is already documented, it just needs multipart form encoding. Second, an optional `--json` flag that dumps raw data so the tool could be piped into `jq` or used as a building block in shell scripts.
+If I had more time I'd add a submit command. The Canvas API supports file submissions using POST and it could make the tool actually practical for day-to-day use. I would also like to clean up some of the edge cases for courses with no assignments as well as a --json flag so the output could be piped elsewhere into other tools.
 
 ---
 
